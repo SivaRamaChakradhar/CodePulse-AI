@@ -1,0 +1,128 @@
+.generate-page {
+    padding: 32px 24px;
+    font-family: 'Roboto', sans-serif;
+    color: #f8fafc;
+}
+
+.generate-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.generate-description {
+    font-size: 16px;
+    margin-bottom: 24px;
+    color: #94a3b8;
+}
+
+.generate-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.generate-input {
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid #334155;
+    border-radius: 12px;
+    width: min(460px, 100%);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.generate-output {
+    flex: 1;
+    min-width: 320px;
+    height: 560px;
+    display: flex;
+    max-width: 100%;
+}
+
+.generate-input h1 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.generate-textarea {
+    background: #020617;
+    border: 1px solid #6455ef;
+    border-radius: 10px;
+    width: 100%;
+    padding: 12px 14px;
+    min-height: 180px;
+    resize: vertical;
+    color: #ffffff;
+    font-size: 16px;
+    outline: none;
+}
+
+.generate-select-wrapper {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.generate-select-container {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.generate-select-container p {
+    font-size: 15px;
+    margin: 0;
+    color: #e2e8f0;
+}
+
+.generate-select {
+    background: #020617;
+    border: 1px solid #6455ef;
+    border-radius: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    color: #ffffff;
+    font-size: 16px;
+    outline: none;
+}
+
+.generate-button {
+    width: 100%;
+    background: #6455ef;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.generate-button:hover {
+    background: #5748d8;
+}
+
+.editor-card {
+    border: 1px solid #334155;
+    border-radius: 16px;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    border-bottom: 1px solid #334155;
+}
