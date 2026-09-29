@@ -2,7 +2,7 @@ const buildGeneratePrompt = (prompt, language) => {
     const finalPrompt = `
         You are an expert ${language} developer.
 
-        Generate production-ready JavaScript code.
+        Generate production-ready ${language} code.
 
         Rules:
         - Return ONLY the source code.
