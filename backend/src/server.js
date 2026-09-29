@@ -19,7 +19,7 @@ app.use("/api/v1", analyzeRoutes);
 app.use("/api/v1", historyRoutes);
 app.use("/", healthRoutes);
 
-PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, ()=>{
     console.log(`Server is running on ${PORT}`);

@@ -1,6 +1,6 @@
 const Groq = require("groq-sdk");
 
-const MODEL = "llama-3.3-70b-versatile";
+const MODEL = "openai/gpt-oss-120b";
 
 const createGroqClient = () => {
     const apiKey = process.env.GROQ_API_KEY;
@@ -12,7 +12,7 @@ const createGroqClient = () => {
     return new Groq({ apiKey });
 };
 
-const generate = async (prompt, language) => {
+const generate = async (prompt) => {
     const groq = createGroqClient();
 
     if (!groq) {
@@ -31,7 +31,7 @@ const generate = async (prompt, language) => {
             messages: [
                 {
                     role: "user",
-                    content: `Generate ${language} code for: ${prompt}`,
+                    content: prompt,
                 },
             ],
         });

@@ -12,7 +12,9 @@ const getHistory = async (req, res) => {
         console.error("History fetch error:", error);
         return res.status(500).json({
             success: false,
-            message: "Failed to fetch history",
+            message: error.code === "P1001"
+                ? "Database unavailable. Start PostgreSQL and try again."
+                : "Failed to fetch history",
         });
     }
 };

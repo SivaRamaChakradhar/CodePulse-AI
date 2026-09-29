@@ -3,73 +3,87 @@ const { buildAnalyzePrompt } = require("../promts/analyze.prompt");
 const { runEslint } = require("./analysis/eslint.service");
 const { createRequest } = require("../repositories/request.repository");
 
-const withTimeout = (promise, timeoutMs, message) => {
-    return Promise.race([
-        promise,
-        new Promise((_, reject) => {
-            setTimeout(() => reject(new Error(message)), timeoutMs);
-        }),
-    ]);
+const parseAiOutput = (aiAnalysis) => {
+    if (typeof aiAnalysis?.output !== "string") {
+        return aiAnalysis;
+    }
+
+    try {
+        return { ...aiAnalysis, output: JSON.parse(aiAnalysis.output) };
+    } catch (error) {
+        console.error("Failed to parse AI output as JSON:", error.message);
+        return {
+            ...aiAnalysis,
+            output: {
+                error: "Invalid JSON from AI",
+                raw: aiAnalysis.output,
+            },
+        };
+    }
+};
+
+const resolveAiAnalysis = (result) => {
+    if (result.status === "fulfilled") {
+        return parseAiOutput(result.value);
+    }
+
+    console.error("AI analysis failed:", result.reason?.message);
+    return {
+        model: "unavailable",
+        output: {
+            error: "AI analysis unavailable",
+            details: {
+                message: result.reason?.message ?? "Unknown error",
+            },
+        },
+    };
+};
+
+const resolveStaticAnalysis = (result) => {
+    if (result.status === "fulfilled") {
+        return result.value;
+    }
+
+    console.error("Static analysis failed:", result.reason?.message);
+    return {
+        issues: [],
+        error: {
+            message: result.reason?.message ?? "Unknown error",
+        },
+    };
+};
+
+const persistAnalysisHistory = async ({ code, language, aiAnalysis, staticAnalysis }) => {
+    await createRequest({
+        endpoint: "/analyze",
+        taskType: "analyze",
+        language,
+        userInput: code,
+        routedModel: aiAnalysis.model ?? "unavailable",
+        llmOutput: aiAnalysis.output,
+        staticAnalysisOutput: staticAnalysis,
+        success: !aiAnalysis.output?.error,
+    });
 };
 
 const analyzeCodeService = async (code, language) => {
     const prompt = buildAnalyzePrompt(code, language);
 
-    let aiAnalysis;
-    let staticAnalysis;
+    const [aiResult, eslintResult] = await Promise.allSettled([
+        execute("analyze", prompt, language),
+        runEslint(code, language),
+    ]);
 
-    try {
-        [aiAnalysis, staticAnalysis] = await Promise.all([
-            withTimeout(execute("analyze", prompt, language), 20000, "AI analysis timed out"),
-            runEslint(code),
-        ]);
-    } catch (error) {
-        console.error("Analyze service error:", error);
-        staticAnalysis = { error: "Static analysis unavailable" };
-        aiAnalysis = {
-            model: "unavailable",
-            output: {
-                error: "AI analysis unavailable",
-                details: error.message,
-            },
-        };
-    }
+    const aiAnalysis = resolveAiAnalysis(aiResult);
+    const staticAnalysis = resolveStaticAnalysis(eslintResult);
 
-    try {
-        await withTimeout(
-            createRequest({
-                endpoint: "/analyze",
-                taskType: "analyze",
-                language,
-                userInput: code,
-                routedModel: aiAnalysis?.model || "unavailable",
-                llmOutput: aiAnalysis?.output,
-                staticAnalysisOutput: staticAnalysis,
-                success: !!aiAnalysis && !aiAnalysis.output?.error,
-            }),
-            3000,
-            "Request persistence timed out"
-        );
-    } catch (dbError) {
-        console.error("Request persistence error:", dbError);
-    }
+    persistAnalysisHistory({ code, language, aiAnalysis, staticAnalysis }).catch((error) => {
+        console.error("Failed to persist analysis history:", error.message);
+    });
 
-    try {
-        if (typeof aiAnalysis?.output === "string") {
-            aiAnalysis.output = JSON.parse(aiAnalysis.output);
-        }
-    } catch (error) {
-        aiAnalysis.output = {
-            error: "Invalid JSON returned by AI",
-        };
-    }
-
-    return {
-        aiAnalysis,
-        staticAnalysis,
-    };
+    return { aiAnalysis, staticAnalysis };
 };
 
 module.exports = {
-    analyzeCodeService
-}
+    analyzeCodeService,
+};

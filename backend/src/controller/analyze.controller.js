@@ -1,51 +1,28 @@
 const { analyzeCodeService } = require("../services/analyze.service");
 
-const withTimeout = (promise, timeoutMs, fallback) => {
-    return Promise.race([
-        promise,
-        new Promise((resolve) => {
-            setTimeout(() => resolve(fallback), timeoutMs);
-        }),
-    ]);
-};
-
 const analyzeCode = async (req, res) => {
+    const { code, language } = req.body;
+
+    if (typeof code !== "string" || !code.trim()) {
+        return res.status(400).json({
+            success: false,
+            message: "Code is required",
+        });
+    }
+
     try {
-        const { code, language } = req.body;
-
-        if (!code) {
-            return res.status(400).json({
-                success: false,
-                message: "code is required",
-            });
-        }
-
-        const result = await withTimeout(
-            analyzeCodeService(code, language),
-            25000,
-            {
-                aiAnalysis: {
-                    model: "unavailable",
-                    output: {
-                        error: "AI analysis unavailable",
-                        details: "Request timed out",
-                    },
-                },
-                staticAnalysis: {
-                    error: "Static analysis unavailable",
-                },
-            }
-        );
+        const result = await analyzeCodeService(code, language);
 
         return res.status(200).json({
             success: true,
             data: result,
         });
     } catch (error) {
-        console.error(error);
+        console.error("Analyze controller error:", error.message);
         return res.status(500).json({
             success: false,
-            message: "Internal server error",
+            message: "Analysis failed",
+            error: process.env.NODE_ENV === "development" ? error.message : undefined,
         });
     }
 };
