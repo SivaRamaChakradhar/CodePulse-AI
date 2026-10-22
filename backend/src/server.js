@@ -11,6 +11,13 @@ const healthRoutes = require("./routes/health.routes");
 
 const app = express();
 
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "CodePulse AI backend is running",
+  });
+});
+
 app.use(express.json());
 app.use(cors());
 
