@@ -28,7 +28,7 @@ const Sidebar = () => {
                     </NavLink>
             </nav>
             <div className="sidebar-footer">
-                <h1 className="sidebar-footer-text">CodePlus AI</h1>
+                <h1 className="sidebar-footer-text">CodePulse AI</h1>
                 <p className="sidebar-footer-para">Multi-Modal AI Assistant</p>
                 <h4 className="sidebar-footer-heading">Powered by</h4>
                 <ul className="sidebar-footer-links">
